@@ -72,7 +72,6 @@ function ListingContext({children}) {
         }
         
      }
-
      const handleViewCard = async (id) => {
         try {
             let result = await axios.get( serverUrl + `/api/listing/findlistingByid/${id}`,{withCredentials:true})
@@ -84,7 +83,7 @@ function ListingContext({children}) {
         }
         
      }
-    const handleSearch = async (data) => {
+     const handleSearch = async (data) => {
         try {
             let result = await axios.get(serverUrl + `/api/listing/search?query=${data}`)
             setSearchData(result.data)
@@ -93,7 +92,8 @@ function ListingContext({children}) {
             console.log(error)
             
         }
-
+        
+     }
 
      const getListing = async () => {
         try {
