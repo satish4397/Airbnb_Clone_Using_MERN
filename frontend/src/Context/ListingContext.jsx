@@ -33,45 +33,51 @@ function ListingContext({children}) {
     
 
      const handleAddListing = async () => {
-        setAdding(true)
-        try {
+  setAdding(true);
+  try {
+    const formData = new FormData();
+    formData.append("title", title);
+    formData.append("description", description);
+    formData.append("rent", rent);
+    formData.append("city", city);
+    formData.append("landMark", landmark);
+    formData.append("category", category);
 
-            let formData = new FormData()
-     formData.append("title",title)
-     formData.append("image1",backEndImage1)
-     formData.append("image2",backEndImage2)
-     formData.append("image3",backEndImage3)
-     formData.append("description",description)
-     formData.append("rent",rent)
-     formData.append("city",city)
-     formData.append("landMark",landmark)
-     formData.append("category",category)
-        
-        let result = await axios.post( serverUrl + "/api/listing/add" ,formData, {withCredentials:true}  )
-        setAdding(false)
-        console.log(result)
-        navigate("/")
-        toast.success("AddListing Successfully")
-        setTitle("")
-        setDescription("")
-       setFrontEndImage1(null)
-       setFrontEndImage2(null)
-       setFrontEndImage3(null)
-       setBackEndImage1(null)
-       setBackEndImage2(null)
-       setBackEndImage3(null)
-       setRent("")
-       setCity("")
-       setLandmark("")
-       setCategory("")
-            
-        } catch (error) {
-            setAdding(false)
-            console.log(error)
-            toast.error(error.response.data.message)
-        }
-        
-     }
+    // these must be File objects from <input type="file">
+    if (backEndImage1) formData.append("image1", backEndImage1);
+    if (backEndImage2) formData.append("image2", backEndImage2);
+    if (backEndImage3) formData.append("image3", backEndImage3);
+
+    const result = await axios.post(serverUrl + "/api/listing/add", formData, {
+      withCredentials: true,
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+
+    setAdding(false);
+    console.log(result);
+    navigate("/");
+    toast.success("AddListing Successfully");
+
+    // reset form
+    setTitle("");
+    setDescription("");
+    setFrontEndImage1(null);
+    setFrontEndImage2(null);
+    setFrontEndImage3(null);
+    setBackEndImage1(null);
+    setBackEndImage2(null);
+    setBackEndImage3(null);
+    setRent("");
+    setCity("");
+    setLandmark("");
+    setCategory("");
+  } catch (error) {
+    setAdding(false);
+    console.error("AddListing error:", error);
+    toast.error(error.response?.data?.message || "Something went wrong");
+  }
+};
+
      const handleViewCard = async (id) => {
         try {
             let result = await axios.get( serverUrl + `/api/listing/findlistingByid/${id}`,{withCredentials:true})
