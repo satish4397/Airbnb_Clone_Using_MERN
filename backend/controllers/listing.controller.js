@@ -4,49 +4,44 @@ import User from "../model/user.model.js";
 
 
 
-export const addListing = async (req, res) => {
-  try {
-    const host = req.userId;
-    if (!host) {
-      return res.status(401).json({ message: "Unauthorized: userId missing" });
+export const addListing = async (req,res) => {
+    try {
+        let host = req.userId;
+        let {title,description,rent,city,landMark,category} = req.body
+        // upload images to cloudinary (uploadOnCloudinary returns secure_url or null)
+        const image1 = req.files?.image1 ? await uploadOnCloudinary(req.files.image1[0].path) : null
+        const image2 = req.files?.image2 ? await uploadOnCloudinary(req.files.image2[0].path) : null
+        const image3 = req.files?.image3 ? await uploadOnCloudinary(req.files.image3[0].path) : null
+
+        // if any required image failed to upload, abort to avoid creating partial listings
+        if (!image1 || !image2 || !image3) {
+            return res.status(500).json({ message: 'Image upload failed. Please try again.' })
+        }
+
+        let listing = await Listing.create({
+            title,
+            description,
+            rent,
+            city,
+            landMark,
+            category,
+            image1,
+            image2,
+            image3,
+            host
+        })
+        let user = await User.findByIdAndUpdate(host,{$push:{listing:listing._id}},{new:true})
+
+        if(!user){
+          return  res.status(404).json({message:"user is not found "})
+        }
+        return res.status(201).json(listing)
+       
+
+    } catch (error) {
+        return res.status(500).json({message:`AddListing error ${error}`})
     }
-
-    const { title, description, rent, city, landMark, category } = req.body;
-
-    // upload images
-    const image1 = req.files?.image1 ? await uploadOnCloudinary(req.files.image1[0].path) : null;
-    const image2 = req.files?.image2 ? await uploadOnCloudinary(req.files.image2[0].path) : null;
-    const image3 = req.files?.image3 ? await uploadOnCloudinary(req.files.image3[0].path) : null;
-
-    if (!image1 || !image2 || !image3) {
-      return res.status(400).json({ message: "All three images are required" });
-    }
-
-    const listing = await Listing.create({
-      title,
-      description,
-      rent,
-      city,
-      landMark,
-      category,
-      image1,
-      image2,
-      image3,
-      host,
-    });
-
-    const user = await User.findByIdAndUpdate(host, { $push: { listing: listing._id } }, { new: true });
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
-    return res.status(201).json(listing);
-  } catch (error) {
-    console.error("AddListing error:", error);
-    return res.status(500).json({ message: "AddListing failed", error: error.message });
-  }
-};
-
+}
 export const getListing= async (req,res) => {
     try {
         let listing = await Listing.find().sort({createdAt:-1})
