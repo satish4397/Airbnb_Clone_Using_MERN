@@ -89,9 +89,9 @@ function ListingContext({children}) {
     const query = data?.trim();
 
     if (!query) {
-      // Handle empty case gracefully
+      // Handle empty case gracefull
       setSearchData(null);
-      console.log("Search query is empty");
+      // console.log("Search query is empty")
       return;
     }
 
