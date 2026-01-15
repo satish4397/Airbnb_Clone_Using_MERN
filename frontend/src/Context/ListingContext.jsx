@@ -84,16 +84,28 @@ function ListingContext({children}) {
         
      }
      const handleSearch = async (data) => {
-        try {
-            let result = await axios.get(serverUrl + `/api/listing/search?query=${data}`)
-            setSearchData(result.data)
-        } catch (error) {
-            setSearchData(null)
-            console.log(error)
-            
-        }
-        
-     }
+  try {
+    // Trim to avoid accidental spaces
+    const query = data?.trim();
+
+    if (!query) {
+      // Handle empty case gracefully
+      setSearchData(null);
+      console.log("Search query is empty");
+      return;
+    }
+
+    const result = await axios.get(`${serverUrl}/api/listing/search`, {
+      params: { query }
+    });
+
+    setSearchData(result.data);
+  } catch (error) {
+    setSearchData(null);
+    console.error("Search error:", error);
+  }
+};
+
 
      const getListing = async () => {
         try {
